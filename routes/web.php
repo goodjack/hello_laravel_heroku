@@ -14,3 +14,6 @@
 Route::get('/', function () {
     return view('welcome');
 });
+
+Route::get('/line', 'LineController@index');
+Route::get('/line/callback', 'LineController@callback');
