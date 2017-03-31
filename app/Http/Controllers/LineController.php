@@ -60,6 +60,6 @@ class LineController extends Controller
         };
 
         // return view('line.callback', compact('result'));
-        return view('line.callback');
+        // return view('line.callback');
     }
 }

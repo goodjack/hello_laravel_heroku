@@ -16,4 +16,4 @@ Route::get('/', function () {
 });
 
 Route::get('/line', 'LineController@index');
-Route::get('/line/callback', 'LineController@callback');
+Route::post('/line/callback', 'LineController@callback');
