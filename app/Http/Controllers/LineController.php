@@ -40,7 +40,9 @@ class LineController extends Controller
                     switch ($event['message']['type']) {
                         case 'text':
                             $log['message_text'] = $event['message']['text'];
-                            $pushMessage = "你剛剛是不是說" . $log['message_text'];
+                            // $pushMessage = "你剛剛是不是說" . $log['message_text'];
+                            $chatbotResult = $this->sendRequest('GET', env('CHATBOT_API_URL') . rawurlencode($log['message_text']), [], []);
+                            $pushMessage = print_r(json_decode($chatbotResult, true)['respSentence'], true);
                             break;
                         case 'image':
                             $pushMessage = "你傳什麼圖片啦，我又看不懂QQ";
@@ -130,5 +132,37 @@ class LineController extends Controller
         // return view('line.callback');
         // return response($response->getRawBody(), $response->getHTTPStatus());
         return response('OK', 200);
+    }
+
+    /**
+     * Inspired by LINE
+     * @param  string $method
+     * @param  string $url
+     * @param  array  $additionalHeader
+     * @param  array  $reqBody
+     * @return array
+     */
+    private function sendRequest($method, $url, array $additionalHeader, array $reqBody)
+    {
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_URL, $url);
+        curl_setopt($ch, CURLOPT_USERAGENT, env('USER_AGENT'));
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+
+        if ($method === 'POST') {
+            curl_setopt($ch, CURLOPT_POST, true);
+
+            if (empty($reqBody)) {
+                // Rel: https://github.com/line/line-bot-sdk-php/issues/35
+                curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Length: 0'));
+            } else {
+                curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($reqBody));
+            }
+        }
+
+        $result = curl_exec($ch);
+        curl_close($ch);
+
+        return $result;
     }
 }
